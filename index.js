@@ -15,10 +15,14 @@ app.use(cookieParser());
 
 // Configuración de CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: [
+    'https://frontproyectobdsii.vercel.app',
+    'http://localhost:3000' // Para desarrollo local
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie']
 }));
 
 // Rutas
