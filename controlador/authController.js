@@ -39,11 +39,13 @@ export const login = async (req, res) => {
         
         // Configurar cookie
         res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 15 * 60 * 1000 // 15 minutos
-        });
+    httpOnly: true,
+    secure: true, // IMPORTANTE: debe ser true en producción
+    sameSite: "none", // Necesario para cross-site
+    maxAge: 15 * 60 * 1000, // 15 minutos
+    domain: process.env.NODE_ENV === "production" ? ".backenddsii.onrender.com" : undefined,
+    path: "/"
+});
 
         // Enviar respuesta
         res.status(200).json({ 
