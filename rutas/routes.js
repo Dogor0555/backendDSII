@@ -18,8 +18,6 @@ router.get("/test", (req, res) => {
   res.send("¡El servidor funciona!");
 });
 
-app.get('/', (req, res) => {
-  res.json({ status: 'API Online', date: new Date() });
-});
+
 
 export default router;
