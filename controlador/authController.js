@@ -37,21 +37,10 @@ export const login = async (req, res) => {
         // Generar token
         const token = generarToken(usuario);
         
-        // Configurar cookie
-       res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  maxAge: 15 * 60 * 1000,
-  // Elimina la propiedad domain o ajústala correctamente
-  path: "/",
-  // Añade esto para compatibilidad con más navegadores
-  partitioned: true // Solo si tu backend soporte Chrome's Partitioned Cookies
-});
-
-        // Enviar respuesta
+        // Enviar token en la respuesta JSON (no como cookie)
         res.status(200).json({ 
             mensaje: "Inicio de sesión exitoso",
+            token, // Enviamos el token en el cuerpo de la respuesta
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
@@ -67,26 +56,19 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-    try {
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict"
-        });
-        
-        res.status(200).json({ mensaje: "Sesión cerrada correctamente" });
-    } catch (error) {
-        res.status(500).json({ mensaje: "Error al cerrar sesión", error });
-    }
+    // En este enfoque, el logout se maneja principalmente en el frontend
+    res.status(200).json({ mensaje: "Sesión cerrada correctamente" });
 };
 
-export const verifyToken = async (req, res) => {
-    const token = req.cookies.token;
+// Middleware de autenticación actualizado para usar el token del header
+export const authMiddleware = async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
     
     if (!token) {
-        return res.status(401).json({ mensaje: "No autorizado" });
+        return res.status(401).json({ mensaje: "Acceso denegado. No hay token" });
     }
-
+    
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const usuario = await usuariosModelo.findByPk(decoded.id, {
@@ -97,8 +79,15 @@ export const verifyToken = async (req, res) => {
             return res.status(401).json({ mensaje: "Usuario no encontrado" });
         }
 
-        res.status(200).json({ usuario });
+        req.user = usuario;
+        next();
     } catch (error) {
-        res.status(401).json({ mensaje: "Token inválido" });
+        console.error("Error en authMiddleware:", error);
+        
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ mensaje: "Token expirado" });
+        }
+        
+        return res.status(401).json({ mensaje: "Token inválido" });
     }
 };
