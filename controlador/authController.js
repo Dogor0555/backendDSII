@@ -13,7 +13,7 @@ const generarToken = (usuario) => {
             nit: usuario.nit
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' } // 15 minutos de expiración
+        { expiresIn: '15m' }
     );
 };
 
@@ -27,20 +27,17 @@ export const login = async (req, res) => {
             return res.status(401).json({ mensaje: "Credenciales inválidas" });
         }
 
-        // Verificar contraseña
         const passwordValido = await bcrypt.compare(contrasena, usuario.contrasena);
 
         if (!passwordValido) {
             return res.status(401).json({ mensaje: "Credenciales inválidas" });
         }
 
-        // Generar token
         const token = generarToken(usuario);
         
-        // Enviar token en la respuesta JSON (no como cookie)
         res.status(200).json({ 
             mensaje: "Inicio de sesión exitoso",
-            token, // Enviamos el token en el cuerpo de la respuesta
+            token,
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
@@ -56,19 +53,17 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-    // En este enfoque, el logout se maneja principalmente en el frontend
     res.status(200).json({ mensaje: "Sesión cerrada correctamente" });
 };
 
-// Middleware de autenticación actualizado para usar el token del header
-export const authMiddleware = async (req, res, next) => {
+export const verifyToken = async (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     
     if (!token) {
-        return res.status(401).json({ mensaje: "Acceso denegado. No hay token" });
+        return res.status(401).json({ mensaje: "No autorizado" });
     }
-    
+
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const usuario = await usuariosModelo.findByPk(decoded.id, {
@@ -79,15 +74,8 @@ export const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ mensaje: "Usuario no encontrado" });
         }
 
-        req.user = usuario;
-        next();
+        res.status(200).json({ usuario });
     } catch (error) {
-        console.error("Error en authMiddleware:", error);
-        
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ mensaje: "Token expirado" });
-        }
-        
-        return res.status(401).json({ mensaje: "Token inválido" });
+        res.status(401).json({ mensaje: "Token inválido" });
     }
 };

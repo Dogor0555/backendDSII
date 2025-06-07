@@ -5,7 +5,8 @@ import { usuariosModelo } from "../conexion/conexion.js";
 dotenv.config();
 
 export const authMiddleware = async (req, res, next) => {
-    const token = req.cookies.token;
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
     
     if (!token) {
         return res.status(401).json({ mensaje: "Acceso denegado. No hay token" });
@@ -32,9 +33,4 @@ export const authMiddleware = async (req, res, next) => {
         
         return res.status(401).json({ mensaje: "Token inválido" });
     }
-};
-
-export const adminMiddleware = async (req, res, next) => {
-    // Implementa lógica de administrador si es necesario
-    next();
 };
