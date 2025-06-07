@@ -38,13 +38,15 @@ export const login = async (req, res) => {
         const token = generarToken(usuario);
         
         // Configurar cookie
-        res.cookie("token", token, {
-    httpOnly: true,
-    secure: true, // IMPORTANTE: debe ser true en producción
-    sameSite: "none", // Necesario para cross-site
-    maxAge: 15 * 60 * 1000, // 15 minutos
-    domain: process.env.NODE_ENV === "production" ? ".backenddsii.onrender.com" : undefined,
-    path: "/"
+       res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: 15 * 60 * 1000,
+  // Elimina la propiedad domain o ajústala correctamente
+  path: "/",
+  // Añade esto para compatibilidad con más navegadores
+  partitioned: true // Solo si tu backend soporte Chrome's Partitioned Cookies
 });
 
         // Enviar respuesta
