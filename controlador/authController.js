@@ -10,7 +10,9 @@ const generarToken = (usuario) => {
             id: usuario.id, 
             email: usuario.correo,
             nombre: usuario.nombre,
-            nit: usuario.nit
+            nit: usuario.nit,
+            rol: usuario.rol // ← Agregar el rol al token
+
         },
         process.env.JWT_SECRET,
         { expiresIn: '15m' }
@@ -42,7 +44,8 @@ export const login = async (req, res) => {
                 id: usuario.id,
                 nombre: usuario.nombre,
                 correo: usuario.correo,
-                nit: usuario.nit
+                nit: usuario.nit,
+                rol: usuario.rol, // ← Incluir el rol en la respuesta
             }
         });
 

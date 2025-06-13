@@ -9,6 +9,11 @@ export const createUsuarioModel = async (sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
+      rol: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        defaultValue: 'vendedor'
+      },
       nombre: {
         type: DataTypes.STRING(255),
         allowNull: false,
