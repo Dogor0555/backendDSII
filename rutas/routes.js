@@ -18,7 +18,7 @@ router.put("/usuarios/update/:usuId", authMiddleware, updateUsu);
 router.delete("/usuarios/delete/:usuId", authMiddleware, deleteUsu);
 
 router.get("/test", (req, res) => {
-  res.send("¡El servidor funciona!");
+  res.send("¡El servidor SIIIIIIIII funciona!");
 });
 
 export default router;
