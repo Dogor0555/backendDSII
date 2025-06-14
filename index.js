@@ -14,19 +14,31 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Configuración de CORS
-app.use(cors({
-  origin: [
-    'https://frontproyectobdsii.vercel.app',
-    'http://localhost:3000' // Para desarrollo local
-  ],
-  credentials: true,
+// Configuración mejorada de CORS
+const corsOptions = {
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://frontproyectobdsii.vercel.app',
+      'http://localhost:3000'
+    ];
+    
+    // Permitir solicitudes sin origen (como apps móviles o Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origen no permitido por CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Set-Cookie']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  // credentials: true, // Solo si usas cookies/sesiones
+  maxAge: 86400 // Cachear configuración CORS por 24 horas
+};
 
-// Rutas
-app.use(router);
+app.use(cors(corsOptions));
+
+// Manejador explícito para OPTIONS
+app.options('*', cors(corsOptions));
 
 // Manejo de errores
 app.use((err, req, res, next) => {
