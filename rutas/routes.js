@@ -14,11 +14,9 @@ import {
 
 const router = express.Router();
 
-// Rutas accesibles tanto para admin como vendedor
+// Rutas para clientes
 router.get('/clientes', authMiddleware(['admin', 'vendedor']), getAllClientes);
 router.get('/clientes/:id', authMiddleware(['admin', 'vendedor']), getClienteById);
-
-// Rutas solo para admin
 router.post('/clientes', authMiddleware(['admin']), createCliente);
 router.put('/clientes/:id', authMiddleware(['admin']), updateCliente);
 router.delete('/clientes/:id', authMiddleware(['admin']), deleteCliente);

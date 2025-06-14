@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { createUsuarioModel } from '../modelos/usuariosModelo.js';
+import { createClienteModel } from '../modelos/clienteModelo.js';
 // Importa otros modelos según sea necesario
 
 dotenv.config();
@@ -18,6 +19,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 });
 
 let usuariosModelo = null;
+let clientesModelo = null;
 // Declara otras variables de modelo según sea necesario
 
 const connection = async () => {    
@@ -27,27 +29,24 @@ const connection = async () => {
         
         // Crear modelos
         usuariosModelo = await createUsuarioModel(sequelize);
+        clientesModelo = await createClienteModel(sequelize);
         
-        // Crear otros modelos y relaciones aquí
+        // Configurar relaciones si es necesario
         // Ejemplo:
-        // clientesModelo = await createClienteModel(sequelize);
-        // productosModelo = await createProductoModel(sequelize, usuariosModelo);
-        
-        // Configurar relaciones
-        // Ejemplo:
-        // usuariosModelo.hasMany(productosModelo, { foreignKey: 'usuarioId' });
-        // productosModelo.belongsTo(usuariosModelo, { foreignKey: 'usuarioId' });
+        // usuariosModelo.hasMany(clientesModelo, { foreignKey: 'usuarioId' });
+        // clientesModelo.belongsTo(usuariosModelo, { foreignKey: 'usuarioId' });
 
-        await sequelize.sync();
+        await sequelize.sync({ alter: true }); // Usar { force: true } solo en desarrollo para recrear tablas
         console.log("Database Synced");
     } catch (error) {
         console.error('Unable to connect to the database:', error);
+        throw error; // Propaga el error para manejo superior
     }
 }
 
 export {
     connection,
     usuariosModelo,
-    // Exporta otros modelos según sea necesario
+    clientesModelo,
     sequelize
 };
