@@ -3,6 +3,8 @@ import express from 'express';
 import { getAllUsu, addUsu, updateUsu, deleteUsu, getUsuarioById } from '../controlador/usuarioController.js';
 import { authMiddleware } from "../controlador/authMiddelware.js";
 import { login, logout, verifyToken } from '../controlador/authController.js';
+import { generarReporteClientesPDF } from '../controlador/reporteController.js';
+
 
 import { 
   getAllClientes, 
@@ -44,5 +46,10 @@ router.get("/admin/dashboard", authMiddleware(['admin']), (req, res) => {
 router.get("/vendedor/dashboard", authMiddleware(['vendedor']), (req, res) => {
     res.json({ mensaje: "Bienvenido al dashboard de vendedor" });
 });
+
+
+//Reporteria
+
+router.get('/clientes/reporte-pdf', authMiddleware(['admin', 'vendedor']), generarReporteClientesPDF);
 
 export default router;
