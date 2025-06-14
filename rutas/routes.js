@@ -16,6 +16,12 @@ import {
 
 const router = express.Router();
 
+
+//Reporteria
+
+router.get('/clientes/reporte-pdf', authMiddleware(['admin', 'vendedor']), generarReporteClientesPDF);
+
+
 // Rutas para clientes
 router.get('/clientes', authMiddleware(['admin', 'vendedor']), getAllClientes);
 router.get('/clientes/:id', authMiddleware(['admin', 'vendedor']), getClienteById);
@@ -48,8 +54,5 @@ router.get("/vendedor/dashboard", authMiddleware(['vendedor']), (req, res) => {
 });
 
 
-//Reporteria
-
-router.get('/clientes/reporte-pdf', authMiddleware(['admin', 'vendedor']), generarReporteClientesPDF);
 
 export default router;
