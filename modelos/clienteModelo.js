@@ -25,7 +25,7 @@ export const createClienteModel = (sequelize) => {
             allowNull: true
         }
     }, {
-        timestamps: true,
+        timestamps: false,
         tableName: 'clientes'
     });
 
