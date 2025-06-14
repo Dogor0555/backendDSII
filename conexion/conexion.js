@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-import { createUsuarioModel } from '../modelos/usuarioModelo.js';
+import { createUsuarioModel } from '../modelos/usuariosModelo.js';
 import { createClienteModel } from '../modelos/clienteModelo.js';
 import { createIngredienteModel } from '../modelos/ingredienteModelo.js';
 import { createCategoriaProductoModel } from '../modelos/categoriaProductoModelo.js';
