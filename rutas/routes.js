@@ -4,7 +4,26 @@ import { getAllUsu, addUsu, updateUsu, deleteUsu, getUsuarioById } from '../cont
 import { authMiddleware } from "../controlador/authMiddelware.js";
 import { login, logout, verifyToken } from '../controlador/authController.js';
 
+import { 
+  getAllClientes, 
+  getClienteById, 
+  createCliente, 
+  updateCliente, 
+  deleteCliente 
+} from '../controllers/clienteController.js';
+
 const router = express.Router();
+
+// Rutas accesibles tanto para admin como vendedor
+router.get('/clientes', authMiddleware(['admin', 'vendedor']), getAllClientes);
+router.get('/clientes/:id', authMiddleware(['admin', 'vendedor']), getClienteById);
+
+// Rutas solo para admin
+router.post('/clientes', authMiddleware(['admin']), createCliente);
+router.put('/clientes/:id', authMiddleware(['admin']), updateCliente);
+router.delete('/clientes/:id', authMiddleware(['admin']), deleteCliente);
+
+
 
 // Rutas de autenticación (públicas)
 router.post("/login", login);
