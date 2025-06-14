@@ -17,13 +17,14 @@ app.use(cookieParser());
 app.use(cors({
   origin: [
     'https://frontproyectobdsii.vercel.app',
-    'http://localhost:3000'
+    'http://localhost:3000' // Para desarrollo local
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'multipart/form-data'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Set-Cookie']
 }));
+
 // Rutas
 app.use(router);
 
