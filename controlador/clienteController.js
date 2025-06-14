@@ -4,7 +4,7 @@ import { clientesModelo } from '../conexion/conexion.js';
 export const getAllClientes = async (req, res) => {
     try {
         const clientes = await clientesModelo.findAll({
-            order: [['createdAt', 'DESC']]
+            order: [['id', 'DESC']]
         });
         
         return res.status(200).json(clientes);
