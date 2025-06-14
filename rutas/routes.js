@@ -13,10 +13,10 @@ router.get("/verifyToken", verifyToken);
 
 // Rutas para usuarios (protegidas por authMiddleware)
 router.get("/usuarios/getAll", authMiddleware(['admin']), getAllUsu);
-router.get("/usuarios/:usuId", authMiddleware(['admin', 'vendedor']), getUsuarioById);
+router.get("/usuarios/:id", authMiddleware(['admin', 'vendedor']), getUsuarioById);
 router.post("/usuarios/add", authMiddleware(['admin']), addUsu);
-router.put("/usuarios/update/:usuId", authMiddleware(['admin']), updateUsu);
-router.delete("/usuarios/delete/:usuId", authMiddleware(['admin']), deleteUsu);
+router.put("/usuarios/update/:id", authMiddleware(['admin']), updateUsu);
+router.delete("/usuarios/delete/:id", authMiddleware(['admin']), deleteUsu);
 
 // Rutas para admin
 router.get("/admin/dashboard", authMiddleware(['admin']), (req, res) => {
