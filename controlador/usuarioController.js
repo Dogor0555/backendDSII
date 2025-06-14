@@ -138,10 +138,10 @@ export const deleteUsu = async (req, res) => {
     }
 }
 
+// En tu usuarioController.js
 export const getUsuarioById = async (req, res) => {
-    const { usuId } = req.params;
     try {
-        const usuario = await usuariosModelo.findOne({ where: { id: usuId } });
+        const usuario = await usuariosModelo.findOne({ where: { id: req.params.id } }); // Cambiado de usuId a id
         if (!usuario) {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
