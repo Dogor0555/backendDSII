@@ -14,16 +14,20 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Configuración de CORS
-app.use(cors({
+const corsOptions = {
   origin: [
     'https://frontproyectobdsii.vercel.app',
     'http://localhost:3000' // Para desarrollo local
   ],
-  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Set-Cookie']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400 // Cachear configuración CORS por 24 horas
+};
+
+app.use(cors(corsOptions));
+
+// Manejador explícito para OPTIONS (preflight)
+app.options('*', cors(corsOptions));
 
 // Rutas
 app.use(router);
