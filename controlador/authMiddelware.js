@@ -1,45 +1,43 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+// controlador/authMiddelware.js
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import { usuariosModelo } from "../conexion/conexion.js";
+
 dotenv.config();
 
 export const authMiddleware = (rolesPermitidos = []) => {
-  return async (req, res, next) => {
-    try {
-      const authHeader = req.headers['authorization'];
-      const token = authHeader && authHeader.split(' ')[1];
-      
-      if (!token) {
-        return res.status(401).json({ mensaje: "Token no proporcionado" });
-      }
+    return async (req, res, next) => {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({ mensaje: "Acceso denegado. No hay token" });
+        }
+        
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const usuario = await usuariosModelo.findByPk(decoded.id, {
+                attributes: { exclude: ['contrasena', 'logo', 'passwordfirma'] }
+            });
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // Verificar si el usuario tiene los roles necesarios
-      if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(decoded.rol)) {
-        return res.status(403).json({ mensaje: "No tienes permisos para esta acción" });
-      }
+            if (!usuario) {
+                return res.status(401).json({ mensaje: "Usuario no encontrado" });
+            }
 
-      // Adjuntar usuario a la solicitud
-      req.user = {
-        id: decoded.id,
-        correo: decoded.correo,
-        rol: decoded.rol,
-        nombre: decoded.nombre
-      };
+            if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(usuario.rol)) {
+                return res.status(403).json({ mensaje: "Acceso denegado. Permisos insuficientes" });
+            }
 
-      next();
-    } catch (error) {
-      console.error("Error en authMiddleware:", error);
-      
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({ mensaje: "Token expirado" });
-      }
-      
-      if (error.name === 'JsonWebTokenError') {
-        return res.status(401).json({ mensaje: "Token inválido" });
-      }
-      
-      res.status(500).json({ mensaje: "Error de autenticación" });
-    }
-  };
+            req.user = usuario;
+            next();
+        } catch (error) {
+            console.error("Error en authMiddleware:", error);
+            
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ mensaje: "Token expirado" });
+            }
+            
+            return res.status(401).json({ mensaje: "Token inválido" });
+        }
+    };
 };

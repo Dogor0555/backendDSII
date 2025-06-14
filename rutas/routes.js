@@ -8,7 +8,7 @@ import {
   getUsuarioById 
 } from '../controlador/usuarioController.js';
 import { authMiddleware } from "../controlador/authMiddelware.js";
-import { login, logout, verifyToken, refreshToken } from '../controlador/authController.js';
+import { login, logout, verifyToken } from '../controlador/authController.js';
 
 const router = express.Router();
 const upload = multer({ 
@@ -23,7 +23,6 @@ const upload = multer({
 router.post("/login", login);
 router.post("/logout", logout);
 router.get("/verifyToken", verifyToken);
-router.post("/refreshToken", refreshToken);
 
 // Rutas para usuarios (protegidas por authMiddleware)
 router.get("/usuarios", authMiddleware(['admin']), getAllUsu);
@@ -55,13 +54,6 @@ router.get("/vendedor/dashboard", authMiddleware(['vendedor']), (req, res) => {
   });
 });
 
-// Ruta para verificar roles
-router.get("/check-role/:role", authMiddleware(), (req, res) => {
-  const { role } = req.params;
-  if (req.user.roles.includes(role)) {
-    return res.json({ hasRole: true });
-  }
-  res.json({ hasRole: false });
-});
+
 
 export default router;
