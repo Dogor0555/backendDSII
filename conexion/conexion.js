@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import { createUsuarioModel } from '../modelos/usuarioModelo.js';
+import { createClienteModel } from '../modelos/clienteModelo.js';
 import { createIngredienteModel } from '../modelos/ingredienteModelo.js';
 import { createCategoriaProductoModel } from '../modelos/categoriaProductoModelo.js';
 import { createProductoModel } from '../modelos/productoModelo.js';
@@ -24,6 +26,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     }
 });
 
+// Modelos
+let usuariosModelo = null;
+let clientesModelo = null;
 let ingredientesModelo = null;
 let categoriasProductoModelo = null;
 let productosModelo = null;
@@ -40,6 +45,8 @@ const connection = async () => {
         console.log('Connection has been established successfully.');
         
         // Crear modelos
+        usuariosModelo = await createUsuarioModel(sequelize);
+        clientesModelo = await createClienteModel(sequelize);
         ingredientesModelo = await createIngredienteModel(sequelize);
         categoriasProductoModelo = await createCategoriaProductoModel(sequelize);
         productosModelo = await createProductoModel(sequelize);
@@ -51,7 +58,26 @@ const connection = async () => {
         detallesFacturaModelo = await createDetalleFacturaModel(sequelize);
 
         // Configurar relaciones
-        // Relación entre Productos y Categorías
+
+        // Relación Usuarios <-> Pedidos
+        pedidosModelo.belongsTo(usuariosModelo, { 
+            foreignKey: 'usuario_id',
+            as: 'usuario'
+        });
+        usuariosModelo.hasMany(pedidosModelo, { 
+            foreignKey: 'usuario_id'
+        });
+
+        // Relación Clientes <-> Pedidos
+        pedidosModelo.belongsTo(clientesModelo, { 
+            foreignKey: 'cliente_id',
+            as: 'cliente'
+        });
+        clientesModelo.hasMany(pedidosModelo, { 
+            foreignKey: 'cliente_id'
+        });
+
+        // Relación Productos <-> Categorías
         productosModelo.belongsTo(categoriasProductoModelo, { 
             foreignKey: 'categoria_id',
             as: 'categoria'
@@ -60,7 +86,7 @@ const connection = async () => {
             foreignKey: 'categoria_id'
         });
 
-        // Relación entre Productos e Ingredientes (Recetas)
+        // Relación Productos <-> Ingredientes (Recetas)
         productosModelo.belongsToMany(ingredientesModelo, {
             through: recetasModelo,
             foreignKey: 'producto_id',
@@ -72,7 +98,7 @@ const connection = async () => {
             as: 'productos'
         });
 
-        // Relación entre Pedidos y Estados
+        // Relación Pedidos <-> Estados
         pedidosModelo.belongsTo(estadosPedidoModelo, {
             foreignKey: 'estado_id',
             as: 'estado'
@@ -81,25 +107,7 @@ const connection = async () => {
             foreignKey: 'estado_id'
         });
 
-        // Relación entre Pedidos y Clientes
-        pedidosModelo.belongsTo(clientesModelo, {
-            foreignKey: 'cliente_id',
-            as: 'cliente'
-        });
-        clientesModelo.hasMany(pedidosModelo, {
-            foreignKey: 'cliente_id'
-        });
-
-        // Relación entre Pedidos y Usuarios
-        pedidosModelo.belongsTo(usuariosModelo, {
-            foreignKey: 'usuario_id',
-            as: 'usuario'
-        });
-        usuariosModelo.hasMany(pedidosModelo, {
-            foreignKey: 'usuario_id'
-        });
-
-        // Relación entre Pedidos y DetallesPedido
+        // Relación Pedidos <-> DetallesPedido
         pedidosModelo.hasMany(detallesPedidoModelo, {
             foreignKey: 'pedido_id',
             as: 'detalles'
@@ -108,7 +116,7 @@ const connection = async () => {
             foreignKey: 'pedido_id'
         });
 
-        // Relación entre DetallesPedido y Productos
+        // Relación DetallesPedido <-> Productos
         detallesPedidoModelo.belongsTo(productosModelo, {
             foreignKey: 'producto_id',
             as: 'producto'
@@ -117,7 +125,7 @@ const connection = async () => {
             foreignKey: 'producto_id'
         });
 
-        // Relación entre Facturas y Pedidos
+        // Relación Facturas <-> Pedidos
         facturasModelo.belongsTo(pedidosModelo, {
             foreignKey: 'pedido_id',
             as: 'pedido'
@@ -126,7 +134,7 @@ const connection = async () => {
             foreignKey: 'pedido_id'
         });
 
-        // Relación entre Facturas y DetallesFactura
+        // Relación Facturas <-> DetallesFactura
         facturasModelo.hasMany(detallesFacturaModelo, {
             foreignKey: 'factura_id',
             as: 'detalles'
@@ -143,8 +151,12 @@ const connection = async () => {
     }
 }
 
+// Exporta todos los modelos y la conexión
 export {
     connection,
+    sequelize,
+    usuariosModelo,
+    clientesModelo,
     ingredientesModelo,
     categoriasProductoModelo,
     productosModelo,
@@ -153,6 +165,5 @@ export {
     pedidosModelo,
     detallesPedidoModelo,
     facturasModelo,
-    detallesFacturaModelo,
-    sequelize
+    detallesFacturaModelo
 };
